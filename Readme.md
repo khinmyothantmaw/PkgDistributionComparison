@@ -134,3 +134,89 @@ summary(res_h)
 heatmap(res_h)
 ```
 
+## Test Plan
+
+### 1. Dataset for testing
+
+```{r}
+set.seed(123)
+
+data_list <- list(
+  A = rnorm(100, mean = 0, sd = 1),
+  B = rnorm(120, mean = 0.5, sd = 1.2),
+  C = runif(90, min = -1, max = 2)
+)
+
+```
+
+### 2. KS Test
+
+Check function handles invalid inputs:
+
+```{r}
+# Fewer than 2 datasets
+# ks_test(list(A = rnorm(10)))
+
+# More than 10 datasets
+# ks_test(lapply(1:11, function(x) rnorm(10)))
+
+# Datasets with NA
+# x <- rnorm(20)
+# x[20] <- NA
+# y <- rnorm(20,1.5)
+# ks_test(list(A = x, B = y))
+
+# Dataset with invalid data
+# x <- rnorm(20)
+# x[20] <- "test"
+# y <- rnorm(20,1.5)
+# ks_test(list(A = x, B = y))
+```
+Expected: function should stop and give informative error messages.
+
+```{r}
+res <- ks_test(data_list)
+
+summary(res)
+
+ecdfplot(res)
+ecdfplot(res, show_pairwise_D = TRUE)
+
+# will get error message for heatmap when the ks_test object is the result of 2 numeric datasets
+heatmap(res)
+heatmpa(res, type = "p")
+```
+
+
+### 3. Hellinger Distance
+
+Check function handles invalid inputs:
+
+```{r}
+# Fewer than 2 datasets
+# hellinger_test(list(A = rnorm(10)))
+
+# More than 10 datasets
+# hellinger_test(lapply(1:11, function(x) rnorm(10)))
+
+# Datasets with NA
+# x <- rnorm(20)
+# x[20] <- NA
+# y <- rnorm(20,1.5)
+# hellinger_test(list(A = x, B = y))
+
+# Dataset with invalid data
+# x <- rnorm(20)
+# x[20] <- "test"
+# y <- rnorm(20,1.5)
+# hellinger_test(list(A = x, B = y))
+```
+Expected: function should stop and give informative error messages.
+
+```{r}
+res_h <- hellinger_test(data_list)
+
+summary(res_h)
+
+heatmap(res_h)
+```
