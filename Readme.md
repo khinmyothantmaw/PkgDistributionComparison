@@ -178,6 +178,7 @@ Expected: function should stop and give informative error messages.
 res <- ks_test(data_list)
 
 summary(res)
+summary(res, base_ks = TRUE) # include the result of base R ks test result
 
 ecdfplot(res)
 ecdfplot(res, show_pairwise_D = TRUE)
