@@ -1,0 +1,118 @@
+---
+title: "Comparing Distributions with KS Test and Hellinger Distance"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(PkgDistributionCompare)
+```
+
+## Introduction
+
+1. Kolmogorov–Smirnov (KS) Test – a non-parametric test comparing two empirical distributions.
+
+2. Hellinger Distance – a metric that quantifies similarity between probability distributions.
+
+Both are implemented in PkgDistributionCompare.
+
+## Kolmogorov–Smirnov Test
+
+The `ks_test()` function performs pairwise KS tests between the numeric datasets.
+
+```{r}
+# Generate sample data
+a <- rnorm(100, mean = 0, sd = 1)
+b <- rnorm(100, mean = 1, sd = 1)
+c <- rnorm(100, mean = 0, sd = 2)
+
+# Run pairwise KS test
+res_ks <- ks_test(list(A = a, B = b, C = c))
+print(res_ks)
+```
+
+### Summarizing KS test results
+
+You can obtain descriptive statistics across all pairwise comparisons using summary():
+
+```{r}
+summary(res_ks)
+```
+
+The summary includes:
+
+- Number of datasets
+
+- KS statistics and p-values
+
+- Minimum, maximum, mean, and median values across comparisons
+
+### Visualizing KS test results
+
+You can visualize results with an ECDF plot:
+
+```{r}
+ecdfplot(res_ks)
+ecdfplot(res_ks, show_pairwise_D = TRUE)
+```
+
+Or as a heatmap (D-statistic or p-value)
+
+```{r}
+heatmap(res_ks, type = "D")
+heatmap(res_ks, type = "p")
+```
+
+
+## Hellinger Distance
+
+The `hellinger_test()` function computes pairwise Hellinger distances.
+
+```{r}
+res_h <- hellinger_test(list(A = a, B = b, C = c))
+res_h
+```
+
+### Summarizing Hellinger distance results
+
+You can also summarize Hellinger distances across datasets:
+
+```{r}
+summary(res_h)
+```
+
+The summary reports:
+
+- Number of datasets
+
+- Dataset sizes
+
+- Minimum, maximum, mean, and median distances
+
+- Pairwise distance table and distance matrix
+
+### Visualizing Hellinger distances
+
+Visualize with a heatmap:
+
+```{r}
+heatmap(res_h)
+```
+
+## Summary
+
+- Use `ks_test()` to detect distributional differences via hypothesis testing.
+
+- Use `hellinger_test()` for a distance-based similarity measure.
+
+- Both provide `summary()` methods for descriptive statistics.
