@@ -20,11 +20,37 @@ library(PkgDistributionCompare)
 
 ## Introduction
 
-1. Kolmogorov–Smirnov (KS) Test – a non-parametric test comparing two empirical distributions.
+This package implements two approaches for comparing distributions:
 
-2. Hellinger Distance – a metric that quantifies similarity between probability distributions.
+1.  Kolmogorov–Smirnov (KS) Test – a non-parametric test comparing two empirical distributions.
+
+2.  Hellinger Distance – a metric that quantifies similarity between probability distributions.
 
 Both are implemented in PkgDistributionCompare.
+
+## Theorical Background
+
+### Kolmogorov–Smirnov (KS) test
+
+The Kolmogorov–Smirnov (KS) test is a non-parametric statistical test that compares the empirical cumulative distribution functions (ECDFs) of two samples. It quantifies the maximum absolute difference between the ECDFs:
+
+$$ 
+D = \sup_x \left\| F_1(x) - F_2(x) \right\|
+$$
+
+where: - $F_1(x)$ and $F_2(x)$ are the ECDFs of the two samples - $\sup_x$ denotes the supremum (maximum) over all values of $x$
+
+The null hypothesis $H_0$ is that both samples are drawn from the same continuous distribution. A large value of $D$ indicates a significant difference between the distributions.
+
+### Hellinger Distance
+
+The Hellinger distance between two probability density functions p(x) and q(x) is defined as:
+
+$$
+H(p, q) = \sqrt{ \frac{1}{2} \int \left( \sqrt{p(x)} - \sqrt{q(x)} \right)^2 \, dx }
+$$
+
+This metric ranges from 0 (identical distributions) to 1 (completely disjoint).
 
 ## Kolmogorov–Smirnov Test
 
@@ -51,11 +77,13 @@ summary(res_ks)
 
 The summary includes:
 
-- Number of datasets
+-   Number of datasets
 
-- KS statistics and p-values
+-   KS statistics and p-values
 
-- Minimum, maximum, mean, and median values across comparisons
+-   Minimum, maximum, mean, and median values across comparisons
+
+-   Pairwise conclusions (Reject or Fail to reject H₀)
 
 ### Visualizing KS test results
 
@@ -73,10 +101,9 @@ heatmap(res_ks, type = "D")
 heatmap(res_ks, type = "p")
 ```
 
-
 ## Hellinger Distance
 
-The `hellinger_test()` function computes pairwise Hellinger distances.
+The draft version of the hellinger_test() function computed pairwise Hellinger distances using Gaussian kernel density estimates and a simple Riemann sum to approximate the integral. While effective for large grids, this method was only first-order accurate, meaning its numerical error scaled linearly with grid spacing. In this final version, the integration was upgraded to the trapezoidal rule, which is second-order accurate and significantly improves precision, especially for skewed or unevenly sampled distributions. This enhancement ensures better alignment with the theoretical definition of Hellinger distance and improves robustness across a wider range of data scenarios.
 
 ```{r}
 res_h <- hellinger_test(list(A = a, B = b, C = c))
@@ -93,13 +120,13 @@ summary(res_h)
 
 The summary reports:
 
-- Number of datasets
+-   Number of datasets
 
-- Dataset sizes
+-   Dataset sizes
 
-- Minimum, maximum, mean, and median distances
+-   Minimum, maximum, mean, and median distances
 
-- Pairwise distance table and distance matrix
+-   Pairwise distance table and distance matrix
 
 ### Visualizing Hellinger distances
 
@@ -109,10 +136,18 @@ Visualize with a heatmap:
 heatmap(res_h)
 ```
 
+or compare the estimated probability density functions directly:
+
+```{r}
+plot_kde(res_h)
+```
+
+The `plot_kde()` function overlays kernel density estimates for each dataset, allowing visual inspection of how distribution shapes and locations differ. Together, these plots help interpret the numerical distances and reveal which datasets are most similar or distinct.
+
 ## Summary
 
-- Use `ks_test()` to detect distributional differences via hypothesis testing.
+-   Use `ks_test()` to detect distributional differences through hypothesis testing based on empirical cumulative distribution functions (ECDFs).
 
-- Use `hellinger_test()` for a distance-based similarity measure.
+-   Use `hellinger_test()` to measure similarity between continuous distributions using kernel density estimates and Hellinger distance.
 
-- Both provide `summary()` methods for descriptive statistics.
+-   Both methods provide summary() methods for descriptive statistics and visualization functions (ecdfplot(), heatmap(), plot_kde()) to support interpretation and comparison.

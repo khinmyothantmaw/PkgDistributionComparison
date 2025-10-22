@@ -161,11 +161,6 @@ heatmap.hellinger_test <- function(x, ...) {
     box()
 }
 
-# Generic
-#' Plot KDE for Hellinger test objects
-#'
-#' @param x A hellinger_test object
-#' @param ... Additional arguments passed to the method
 #' @export
 plot_kde <- function(x, ...) {
     UseMethod("plot_kde")
