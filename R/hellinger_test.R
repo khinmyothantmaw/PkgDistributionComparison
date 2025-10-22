@@ -43,6 +43,7 @@
 hellinger_test <- function(data_list) {
     res <- pairwise_hellinger_test(data_list)
     class(res) <- "hellinger_test"
+    attr(res, "original_data") <- data_list
     return(res)
 }
 
@@ -51,7 +52,6 @@ print.hellinger_test <- function(x, ...) {
     cat("Hellinger Distance Result\n")
     cat("-------------------------\n")
     cat("Number of datasets:", x$n_datasets, "\n")
-    cat("Histogram bins:", x$bins, "\n\n")
 
     cat("Dataset Sizes:\n")
     sizes <- setNames(x$sizes, x$data_names)
@@ -159,4 +159,51 @@ heatmap.hellinger_test <- function(x, ...) {
     axis(2, at = 1:n, labels = rev(labels), las = 1)
 
     box()
+}
+
+# Generic
+#' Plot KDE for Hellinger test objects
+#'
+#' @param x A hellinger_test object
+#' @param ... Additional arguments passed to the method
+#' @export
+plot_kde <- function(x, ...) {
+    UseMethod("plot_kde")
+}
+
+# S3 method
+#' Plot KDE for Hellinger test objects
+#'
+#' @param x A hellinger_test object
+#' @param n_points Number of grid points for KDE
+#' @param colors Vector of colors
+#' @param ... Additional graphical parameters
+#' @export
+plot_kde.hellinger_test <- function(x, n_points = 200, colors = NULL, ...) {
+    data_list <- attr(x, "original_data")
+    if (is.null(data_list)) stop("Original data not stored in object.")
+
+    n <- length(data_list)
+    if (is.null(colors)) colors <- rainbow(n)
+
+    # Determine global range
+    all_values <- unlist(data_list)
+    global_min <- min(all_values)
+    global_max <- max(all_values)
+    grid <- seq(global_min, global_max, length.out = n_points)
+
+    # Plot setup
+    plot(NULL, xlim = c(global_min, global_max), ylim = c(0, max(sapply(data_list, function(d) {
+        d <- density(d, from = global_min, to = global_max, n = n_points)
+        max(d$y)
+    }))), xlab = "Value", ylab = "Density", main = "KDE of datasets", ...)
+
+    # Overlay densities
+    for (i in seq_along(data_list)) {
+        d <- density(data_list[[i]], from = global_min, to = global_max, n = n_points)
+        lines(d$x, d$y, col = colors[i], lwd = 2)
+    }
+
+    # Add legend
+    legend("topright", legend = names(data_list), col = colors, lwd = 2)
 }
