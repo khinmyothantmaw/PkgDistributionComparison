@@ -134,6 +134,12 @@ summary(res_h)
 heatmap(res_h)
 ```
 
+**KDE Plot**
+
+```{r}
+KDE
+```
+
 ## Test Plan
 
 ### 1. Dataset for testing
@@ -171,8 +177,26 @@ Check function handles invalid inputs:
 # x[20] <- "test"
 # y <- rnorm(20,1.5)
 # ks_test(list(A = x, B = y))
-```
+
 Expected: function should stop and give informative error messages.
+
+# x <- rnorm(100)
+# y <- rexp(200)
+# res1 <- ks_test(list(A = x, B = y))
+# res2 <- ks_test(list(B = y, A = x))
+# d1 <- res1$results$D.Statistic[1]
+# d2 <- res2$results$D.Statistic[1]
+# d1
+# d2
+
+Both d1 and d2 have the same value.
+
+res <- ks_test(list(A = x, B = x))
+summary(res)
+
+P-value is 1 because both datasets are identical
+```
+
 
 ```{r}
 res <- ks_test(data_list)
@@ -211,6 +235,10 @@ Check function handles invalid inputs:
 # x[20] <- "test"
 # y <- rnorm(20,1.5)
 # hellinger_test(list(A = x, B = y))
+
+# x <- rnorm(100)
+# res <- hellinger_test(list(A = x, B = x))
+# Hellinger distance is zero for identical datasets
 ```
 Expected: function should stop and give informative error messages.
 
